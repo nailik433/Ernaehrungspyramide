@@ -68,7 +68,7 @@ p{margin:0}
 .top .wrap{display:flex;flex-direction:column;gap:8px;padding-block:10px}
 .brand{display:flex;align-items:center;gap:10px}
 .brand svg{width:34px;height:30px;flex:none}
-.brand b{font-family:var(--font-display);font-size:1.15rem;font-weight:800}
+.brand b{min-width:0;font-family:var(--font-display);font-size:1.15rem;font-weight:800}
 .brand span{color:var(--muted);font-size:.85rem;margin-left:auto;text-align:right}
 .steps{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
 .step{flex:1 0 auto;display:flex;align-items:center;gap:7px;padding:6px 12px 6px 7px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.88rem;font-weight:700;white-space:nowrap}
@@ -430,7 +430,7 @@ function renderSteps(){
   $('#steps').innerHTML=STEPS.map(function(st,i){
     return '<button type="button" class="step'+(S.done[st.id]?' done':'')+'" data-go="'+i+'"'+(i===S.step?' aria-current="step"':'')+'><i>'+(S.done[st.id]?'✓':(i+1))+'</i><span class="lb">'+st.label+'</span></button>';
   }).join('');
-  var n=STEPS.filter(function(x){return S.done[x.id]}).length;$('#stars').textContent='★ '+n+'/6 geschafft';
+  var n=STEPS.filter(function(x){return S.done[x.id]}).length;$('#stars').textContent='★ '+n+'/6';
   var cur=$('.step[aria-current]');if(cur&&cur.scrollIntoView)cur.scrollIntoView({inline:'center',block:'nearest'});
 }
 function go(i){
