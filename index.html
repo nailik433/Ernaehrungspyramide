@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ernährungspyramide entdecken</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;800&display=swap">
+<style>
+/* Layout: sticky Schritt-Leiste oben, darunter ein Lernschritt pro Ansicht; Pyramide als gestufter Trapezturm in den Gruppenfarben. */
+:root{
+  --bg:#f1f5f2; --surface:#ffffff; --surface-2:#e6eee9; --ink:#12241a; --muted:#46584d; --line:#cdd9d1;
+  --accent:#1c6b43; --accent-ink:#ffffff; --focus:#0b5fd1;
+  --good:#17703c; --good-bg:#d5efdd; --bad:#a8231b; --bad-bg:#fadcd8; --warn:#6f5200; --warn-bg:#fbefc2;
+  --c-wa:#bfe3f5; --t-wa:#0b3c57;
+  --c-ob:#c2e8b6; --t-ob:#14401a;
+  --c-ge:#f3df8a; --t-ge:#4a3b00;
+  --c-mi:#d6d2f4; --t-mi:#2b2466;
+  --c-fl:#f2bab2; --t-fl:#5a1710;
+  --c-fe:#f6cc98; --t-fe:#573000;
+  --c-su:#f3b8d3; --t-su:#5c1038;
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Atkinson Hyperlegible','Segoe UI',system-ui,sans-serif;
+  --rowh:72px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1a13; --surface:#16261d; --surface-2:#1f3327; --ink:#e5efe9; --muted:#a2b6a9; --line:#2d4236;
+    --accent:#6fcb94; --accent-ink:#0b1c13; --focus:#7db3ff;
+    --good:#7fdba0; --good-bg:#17402a; --bad:#ff9b92; --bad-bg:#4a1d19; --warn:#f3d27a; --warn-bg:#43360a;
+    --c-wa:#12445f; --t-wa:#bfe6f8; --c-ob:#1f4a22; --t-ob:#c9efbf; --c-ge:#5a4a06; --t-ge:#f6e598;
+    --c-mi:#38306f; --t-mi:#ddd9fa; --c-fl:#6a2820; --t-fl:#f7c8c1; --c-fe:#69401a; --t-fe:#f9d8ae;
+    --c-su:#6e2a4c; --t-su:#f8c8de;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1a13; --surface:#16261d; --surface-2:#1f3327; --ink:#e5efe9; --muted:#a2b6a9; --line:#2d4236;
+  --accent:#6fcb94; --accent-ink:#0b1c13; --focus:#7db3ff;
+  --good:#7fdba0; --good-bg:#17402a; --bad:#ff9b92; --bad-bg:#4a1d19; --warn:#f3d27a; --warn-bg:#43360a;
+  --c-wa:#12445f; --t-wa:#bfe6f8; --c-ob:#1f4a22; --t-ob:#c9efbf; --c-ge:#5a4a06; --t-ge:#f6e598;
+  --c-mi:#38306f; --t-mi:#ddd9fa; --c-fl:#6a2820; --t-fl:#f7c8c1; --c-fe:#69401a; --t-fe:#f9d8ae;
+  --c-su:#6e2a4c; --t-su:#f8c8de;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.55;margin:0}
+[data-g="wa"]{--gbg:var(--c-wa);--gfg:var(--t-wa)}
+[data-g="ob"]{--gbg:var(--c-ob);--gfg:var(--t-ob)}
+[data-g="ge"]{--gbg:var(--c-ge);--gfg:var(--t-ge)}
+[data-g="mi"]{--gbg:var(--c-mi);--gfg:var(--t-mi)}
+[data-g="fl"]{--gbg:var(--c-fl);--gfg:var(--t-fl)}
+[data-g="fe"]{--gbg:var(--c-fe);--gfg:var(--t-fe)}
+[data-g="su"]{--gbg:var(--c-su);--gfg:var(--t-su)}
+
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.6rem,4.5vw,2.2rem);font-weight:800}
+h3{font-size:1.2rem;font-weight:800}
+p{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Kopf */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;flex-direction:column;gap:8px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:34px;height:30px;flex:none}
+.brand b{font-family:var(--font-display);font-size:1.15rem;font-weight:800}
+.brand span{color:var(--muted);font-size:.85rem;margin-left:auto;text-align:right}
+.steps{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.step{flex:1 0 auto;display:flex;align-items:center;gap:7px;padding:6px 12px 6px 7px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.88rem;font-weight:700;white-space:nowrap}
+.step i{font-style:normal;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-size:.8rem}
+.step[aria-current="step"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.step[aria-current="step"] i{background:var(--accent-ink);color:var(--accent)}
+.step.done i{background:var(--good-bg);color:var(--good)}
+.step[aria-current="step"].done i{background:var(--accent-ink);color:var(--accent)}
+
+/* Inhalt */
+main{padding-block:26px 40px;display:flex;flex-direction:column;gap:22px}
+.meta{color:var(--muted);font-size:.9rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+.lead{font-size:1.1rem;max-width:62ch}
+.task{background:var(--surface-2);border-radius:14px;padding:14px 16px;max-width:70ch}
+.task .lbl{display:block;font-size:.78rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;min-height:44px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line);padding-top:18px}
+
+/* Lernziele */
+.goals{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{display:flex;gap:10px;align-items:flex-start}
+.goals li::before{content:"";flex:none;width:10px;height:10px;margin-top:.5em;border-radius:3px;background:var(--accent)}
+
+/* Vorwissen */
+.q{display:flex;flex-direction:column;gap:8px}
+.q h3{font-size:1.05rem;font-family:var(--font-body);font-weight:700}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 14px;cursor:pointer;min-height:44px;text-align:left}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--surface-2);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent)}
+
+/* Pyramide */
+.pyr{display:flex;flex-direction:column;gap:3px;width:100%;max-width:560px;margin-inline:auto}
+.pyr-row{display:flex;gap:3px;height:var(--rowh)}
+.cell{flex:1;min-width:0;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:2px 4px;background:var(--gbg);color:var(--gfg);font-weight:700;font-size:.8rem;line-height:1.15;text-align:center;cursor:pointer;hyphens:auto;overflow-wrap:anywhere}
+.cell small{font-size:.64rem;letter-spacing:.07em;text-transform:uppercase;opacity:.9}
+.cell:hover{filter:brightness(1.06)}
+.cell:focus-visible{outline:none;box-shadow:inset 0 0 0 4px var(--focus)}
+.cell.sel{box-shadow:inset 0 0 0 4px var(--ink)}
+.cell.ok{box-shadow:inset 0 0 0 5px var(--good)}
+.cell.no{box-shadow:inset 0 0 0 5px var(--bad)}
+.pyr.locked .cell{cursor:default}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;font-size:.85rem;color:var(--muted);margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.dot.gruen{background:#2e9e5b}.dot.gelb{background:#e0a800}.dot.rot{background:#d2453b}
+
+.explore{display:grid;gap:22px;grid-template-columns:minmax(0,1fr)}
+.panel{min-width:0}
+.panel .hd{border-radius:16px 16px 0 0;padding:16px 18px;background:var(--gbg);color:var(--gfg);display:flex;flex-direction:column;gap:6px}
+.panel .hd h3{font-size:1.5rem;color:inherit}
+.panel .bd{border:1px solid var(--line);border-top:0;border-radius:0 0 16px 16px;background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:16px}
+.tag{display:inline-flex;gap:6px;align-items:center;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.sec b.k{display:block;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.sec.big p{font-family:var(--font-display);font-size:1.25rem;font-weight:600;line-height:1.3}
+.rule{background:var(--surface-2);border-radius:12px;padding:12px 14px;font-weight:700}
+.warn{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:12px 14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px 11px;background:var(--surface);font-size:.92rem}
+.empty{border:2px dashed var(--line);border-radius:16px;padding:28px 20px;color:var(--muted);text-align:center;display:grid;place-items:center;min-height:240px}
+.prog{display:flex;align-items:center;gap:10px;margin-top:12px;justify-content:center;font-size:.9rem;color:var(--muted)}
+.pips{display:flex;gap:5px}.pips i{width:12px;height:12px;border-radius:50%;background:var(--line)}.pips i.on{background:var(--accent)}
+
+/* Zuordnen */
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:56px;padding:12px;border-radius:14px;background:var(--surface-2)}
+.food{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:7px 12px;cursor:grab;font-weight:700;min-height:44px}
+.food .em{font-size:1.35rem;line-height:1}
+.food[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 3px var(--accent)}
+.bins{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.bin{border:2px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.bin.target{border-style:dashed;border-color:var(--accent)}
+.bin.over{background:var(--surface-2)}
+.bin-head{width:100%;border:0;background:var(--gbg);color:var(--gfg);padding:9px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:0}
+.bin-head small{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;opacity:.9}
+.bin-head b{font-size:1rem;line-height:1.2}
+.bin-head:focus-visible{outline-offset:-4px}
+.placed{list-style:none;margin:0;padding:8px;display:flex;flex-wrap:wrap;gap:5px;min-height:52px;align-content:flex-start}
+.placed li{font-size:.9rem;background:var(--good-bg);color:var(--good);border-radius:8px;padding:2px 8px;font-weight:700}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.shake{animation:none;outline:3px solid var(--bad)}}
+.fb{min-height:3.2em;border-radius:12px;padding:10px 14px;background:var(--surface-2)}
+.fb.ok{background:var(--good-bg);color:var(--good)}
+.fb.no{background:var(--bad-bg);color:var(--bad)}
+.statusline{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted)}
+.statusline b{color:var(--ink)}
+.result{background:var(--good-bg);color:var(--good);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.result p{color:var(--ink)}
+
+/* Detektiv */
+.qcard{display:flex;align-items:center;gap:14px;background:var(--surface);border:2px solid var(--ink);border-radius:16px;padding:12px 18px;width:fit-content;max-width:100%}
+.qcard .em{font-size:2.6rem;line-height:1}
+.qcard b{font-family:var(--font-display);font-size:1.5rem;font-weight:800}
+.review{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.review li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+
+/* Mein Tag */
+.day{display:grid;gap:22px;grid-template-columns:minmax(0,1fr)}
+.foodgrp{display:flex;flex-direction:column;gap:6px}
+.foodgrp h4{margin:0;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;gap:8px;align-items:center}
+.foodgrp h4 span{background:var(--gbg);color:var(--gfg);padding:2px 9px;border-radius:6px}
+.foodgrp .list{display:flex;flex-wrap:wrap;gap:6px}
+.food.add{cursor:pointer;position:relative;padding:5px 11px;font-weight:400;min-height:40px}
+.food.add .cnt{background:var(--accent);color:var(--accent-ink);border-radius:999px;font-size:.78rem;font-weight:700;min-width:22px;height:22px;display:grid;place-items:center;padding-inline:5px}
+.meter{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.meter:last-child{border:0}
+.m-label{min-width:0}
+.m-label b{display:block;line-height:1.2}
+.m-label small{color:var(--muted)}
+.m-status{font-weight:700;font-size:.85rem;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.m-status.ok{background:var(--good-bg);color:var(--good)}
+.m-status.low{background:var(--warn-bg);color:var(--warn)}
+.m-status.high{background:var(--bad-bg);color:var(--bad)}
+.m-bar{grid-column:1/-1;position:relative;height:16px;border-radius:8px;background:var(--surface-2);overflow:hidden}
+.m-bar .zone{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,var(--line) 0 4px,transparent 4px 8px);border-left:2px solid var(--muted);border-right:2px solid var(--muted)}
+.m-bar .fill{position:absolute;left:0;top:3px;bottom:3px;border-radius:5px;background:var(--gfg);min-width:0;transition:width .25s}
+@media (prefers-reduced-motion:reduce){.m-bar .fill{transition:none}}
+.sum{display:flex;flex-direction:column;gap:8px}
+textarea{width:100%;min-height:96px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);color:var(--ink);font:inherit;resize:vertical}
+
+/* Abschluss */
+.merk{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.merk div{background:var(--gbg);color:var(--gfg);border-radius:12px;padding:12px 14px;font-weight:700}
+.merk small{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.cmp{display:grid;gap:8px}
+.cmp div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.checks{display:grid;gap:8px}
+.checks label{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer}
+.checks input{width:22px;height:22px;margin-top:2px;accent-color:var(--accent);flex:none}
+
+details.teacher{margin-top:10px;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:6px 18px}
+details.teacher summary{cursor:pointer;font-weight:700;padding:10px 0}
+details.teacher .in{display:flex;flex-direction:column;gap:14px;padding-bottom:14px}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;min-width:520px;width:100%;font-size:.92rem}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+footer{padding-block:0 40px}
+.small{font-size:.88rem;color:var(--muted)}
+
+@media (min-width:760px){:root{--rowh:80px}.cell{font-size:.92rem}.cell small{font-size:.68rem}}
+@media (min-width:900px){
+  .explore{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}
+  .explore .pyrcol{position:sticky;top:130px}
+  .day{grid-template-columns:minmax(0,6fr) minmax(0,5fr);align-items:start}
+  .day .meters{position:sticky;top:130px}
+}
+@media (max-width:520px){.brand span{display:none}.step{font-size:.82rem}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 34 30" aria-hidden="true"><path d="M17 1 L21 8 H13 Z" fill="var(--c-su)"/><path d="M12 10 H22 L25 16 H9 Z" fill="var(--c-fe)"/><path d="M8 18 H26 L30 25 H4 Z" fill="var(--c-ob)"/><path d="M3 27 H31 V29 H3 Z" fill="var(--c-wa)"/></svg>
+      <b>Ernährungspyramide</b>
+      <span>AES · Klasse 7</span>
+    </div>
+    <nav class="steps" id="steps" aria-label="Lernschritte"></nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <main id="main"></main>
+  <footer>
+    <details class="teacher">
+      <summary>Hinweise für Lehrkräfte</summary>
+      <div class="in">
+        <p><b>Lernziele.</b> Die Schülerinnen und Schüler benennen die Ebenen und Gruppen der Ernährungspyramide, ordnen Lebensmittel der passenden Gruppe und Ebene zu, begründen die Mengenempfehlungen und prüfen einen Tagesplan anhand der Pyramide.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Schritt</th><th>Phase</th><th>Zeit</th><th>Didaktischer Gedanke</th></tr></thead>
+          <tbody>
+            <tr><td>Einstieg</td><td>Aktivierung</td><td>5 Min.</td><td>Drei Vermutungsfragen holen Vorwissen und typische Fehlvorstellungen ab (Cola, Kartoffel). Die Tipps werden am Ende verglichen.</td></tr>
+            <tr><td>Entdecken</td><td>Erarbeitung</td><td>10–12 Min.</td><td>Die Lernenden erkunden Gruppe für Gruppe selbst. Menge, Begründung und Merksatz stehen immer in derselben Reihenfolge.</td></tr>
+            <tr><td>Zuordnen</td><td>Einüben</td><td>8–10 Min.</td><td>Karten sortieren mit sofortiger Rückmeldung. Nach zwei Fehlversuchen erscheint ein Tipp. Jede Runde zieht neue Karten.</td></tr>
+            <tr><td>Ebenen-Detektiv</td><td>Vertiefen</td><td>8 Min.</td><td>Zehn Fragen, davon mindestens vier „Fallen“ (Kartoffel, Ei, Butter, Käse, Chips, Cola). Jede Rückmeldung begründet die Lösung.</td></tr>
+            <tr><td>Mein Tag</td><td>Anwenden und Transfer</td><td>10–12 Min.</td><td>Ein Beispieltag wird geladen. Die Lernenden prüfen ihn, tragen ihren eigenen Tag ein und formulieren eine Verbesserung.</td></tr>
+            <tr><td>Abschluss</td><td>Sichern und Reflektieren</td><td>5 Min.</td><td>Vergleich Anfangstipp und Wissen, Merksätze, Selbsteinschätzung.</td></tr>
+          </tbody></table></div>
+        <p><b>Differenzierung.</b> Schwächere Lernende nutzen „Entdecken“ parallel zum Zuordnen und lassen sich die Tipps anzeigen. Stärkere Lernende bearbeiten mehrere Zuordnungsrunden und begründen im Detektiv jede Lösung mündlich. Der Beobachtungsauftrag zu „Mein Tag“ eignet sich als Hausaufgabe (Ernährungsprotokoll).</p>
+        <p><b>Fachliche Grundlage.</b> Die Pyramide folgt der aid-Ernährungspyramide mit sechs Ebenen und sieben Lebensmittelgruppen (Ebene 4 ist geteilt). Die Portionsangaben unter „Mein Tag“ sind vereinfachte Richtwerte für Jugendliche. Bitte gleichen Sie Ebenenzuschnitt und Mengen mit dem Lehrwerk Ihrer Klasse ab.</p>
+        <p><b>Datenschutz.</b> Es gibt kein Login. Fortschritt und Eingaben bleiben nur im Browser des jeweiligen Geräts. Auf geteilten Schulgeräten hilft „Alles zurücksetzen“ im letzten Schritt.</p>
+      </div>
+    </details>
+  </footer>
+</div>
+<div class="sr" id="live" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='aes7-ernaehrungspyramide-v1';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var main=$('#main');
+
+/* ---------- Daten ---------- */
+var GROUPS=[
+ {id:'wa',level:1,name:'Getränke',short:'Getränke',ampel:'gruen',
+  amount:'1,5 Liter oder mehr pro Tag, das sind etwa 6 Gläser.',
+  why:'Dein Körper besteht zu mehr als der Hälfte aus Wasser. Wasser transportiert Nährstoffe, hält die Körpertemperatur stabil und hilft beim Konzentrieren.',
+  rule:'Wasser zuerst: Durst löschen ohne Zucker.',
+  warn:'Cola, Limo und Energy-Drinks gehören nicht in die Basis. Sie sind stark gesüßt und stehen an der Spitze der Pyramide.',
+  t:{min:6,max:10,scale:10,label:'mind. 6 Gläser'}},
+ {id:'ob',level:2,name:'Gemüse, Salat & Obst',short:'Gemüse, Salat & Obst',ampel:'gruen',
+  amount:'5 Portionen am Tag: etwa 3 Portionen Gemüse und 2 Portionen Obst. Eine Portion passt in deine Hand.',
+  why:'Gemüse und Obst liefern Vitamine, Mineralstoffe und Ballaststoffe, haben aber nur wenig Energie. Sie halten dich fit und stärken dein Immunsystem.',
+  rule:'5 am Tag, am besten bunt gemischt.',
+  warn:'Kartoffeln zählen nicht zum Gemüse. Du findest sie eine Ebene höher.',
+  t:{min:5,max:8,scale:8,label:'5 Portionen („5 am Tag“)'}},
+ {id:'ge',level:3,name:'Getreide & Kartoffeln',short:'Getreide & Kartoffeln',ampel:'gruen',
+  amount:'Etwa 4 Portionen am Tag, zum Beispiel eine Scheibe Brot oder eine Beilage aus Nudeln, Reis oder Kartoffeln.',
+  why:'Brot, Nudeln und Reis liefern Stärke und damit Energie für Kopf und Muskeln. Vollkornprodukte enthalten zusätzlich Ballaststoffe und machen lange satt.',
+  rule:'Brot, Nudeln, Reis, Kartoffeln: Energie für den Tag, am besten als Vollkorn.',
+  warn:'Kartoffelchips und Pommes sind zwar aus Kartoffeln, zählen aber wegen Fett und Salz zu den Snacks.',
+  t:{min:4,max:6,scale:7,label:'4–6 Portionen'}},
+ {id:'mi',level:4,name:'Milch & Milchprodukte',short:'Milch & Milchprodukte',ampel:'gelb',
+  amount:'3 Portionen am Tag, zum Beispiel 1 Glas Milch, 1 Becher Joghurt und 1–2 Scheiben Käse.',
+  why:'Milchprodukte liefern Calcium für Knochen und Zähne sowie hochwertiges Eiweiß. Im Wachstum brauchst du davon besonders viel.',
+  rule:'Täglich Milch, Joghurt oder Käse, aber in Maßen.',
+  warn:'Butter wird aus Milch gemacht, gehört aber zu den Fetten (Ebene 5). Eier sind keine Milchprodukte.',
+  t:{min:3,max:4,scale:5,label:'3 Portionen'}},
+ {id:'fl',level:4,name:'Fleisch, Wurst, Fisch & Eier',short:'Fleisch, Fisch & Eier',ampel:'gelb',
+  amount:'Fleisch und Wurst nur in Maßen (empfohlen: 300 bis 600 g pro Woche). Fisch 1- bis 2-mal pro Woche.',
+  why:'Fleisch, Fisch und Eier liefern Eiweiß, Eisen und Vitamine, Seefisch auch Jod. Wurst ist oft fett und salzig, deshalb gibt es sie nur selten.',
+  rule:'Weniger Fleisch und Wurst, dafür Fisch und Eier im Wechsel.',
+  warn:'Eier stehen hier und nicht bei den Milchprodukten, obwohl sie tierisch sind.',
+  t:{min:0,max:1,scale:4,label:'höchstens 1 Portion'}},
+ {id:'fe',level:5,name:'Öle & Fette',short:'Öle & Fette',ampel:'gelb',
+  amount:'Sparsam: etwa 1–2 Portionen am Tag, zum Beispiel 1 Esslöffel Öl im Salat oder dünn Streichfett aufs Brot.',
+  why:'Fett liefert viel Energie und Vitamin E. Pflanzenöle wie Raps- und Olivenöl sind besser als viel Butter. Versteckte Fette stecken in Wurst, Chips und Gebäck.',
+  rule:'Wenig Fett, aber das richtige: lieber Pflanzenöl.',
+  warn:'Butter steht hier, obwohl sie aus Milch gemacht wird.',
+  t:{min:1,max:2,scale:4,label:'1–2 Portionen'}},
+ {id:'su',level:6,name:'Süßes, Salziges & Snacks',short:'Süßes & Snacks',ampel:'rot',
+  amount:'Höchstens 1 kleine Portion am Tag, etwa eine Handvoll.',
+  why:'Süßigkeiten, Chips und Limo liefern viel Zucker, Fett und Salz, aber kaum Vitamine. Zu viel davon macht schnell müde und schadet den Zähnen.',
+  rule:'Nichts ist verboten, aber die Spitze ist klein.',
+  warn:'Auch Cola gehört hierher, obwohl sie ein Getränk ist.',
+  t:{min:0,max:1,scale:4,label:'höchstens 1 Portion'}}
+];
+var G={};GROUPS.forEach(function(g){G[g.id]=g});
+var AMPEL={gruen:'Reichlich',gelb:'In Maßen',rot:'Selten'};
+
+/* [Name, Emoji, Gruppe, Begründung, Falle?] */
+var RAW=[
+ ['Leitungswasser','🚰','wa','Wasser ist der beste Durstlöscher und enthält keinen Zucker.'],
+ ['Mineralwasser','💧','wa','Mineralwasser ohne Zucker gehört zur Basis der Pyramide.'],
+ ['Kräutertee','🍵','wa','Ungesüßter Tee zählt zu den Getränken der Basis.'],
+ ['Wasser mit Zitrone','🍋','wa','Ein Spritzer Zitrone macht daraus kein Süßgetränk. Es bleibt ein Getränk der Basis.'],
+ ['Apfel','🍎','ob','Obst liefert Vitamine und Ballaststoffe.'],
+ ['Banane','🍌','ob','Obst liefert Vitamine, Mineralstoffe und Energie.'],
+ ['Erdbeeren','🍓','ob','Obst liefert Vitamine und Ballaststoffe.'],
+ ['Karotte','🥕','ob','Gemüse liefert Vitamine, Mineralstoffe und Ballaststoffe.'],
+ ['Tomate','🍅','ob','In der Ernährung zählen Tomaten zum Gemüse.'],
+ ['Brokkoli','🥦','ob','Gemüse liefert Vitamine, Mineralstoffe und Ballaststoffe.'],
+ ['Gurke','🥒','ob','Gemüse mit viel Wasser und wenig Energie.'],
+ ['Paprika','🫑','ob','Gemüse mit viel Vitamin C.'],
+ ['Blattsalat','🥬','ob','Salat gehört zur Gruppe Gemüse, Salat und Obst.'],
+ ['Vollkornbrot','🍞','ge','Brot ist ein Getreideprodukt. Vollkorn macht lange satt.'],
+ ['Nudeln','🍝','ge','Nudeln werden aus Getreide (Weizen) hergestellt.'],
+ ['Reis','🍚','ge','Reis ist ein Getreide.'],
+ ['Haferflocken','🌾','ge','Hafer ist ein Getreide.'],
+ ['Kartoffeln','🥔','ge','Kartoffeln zählen nicht zum Gemüse. Sie liefern viel Stärke und gehören zu Getreide & Kartoffeln (Ebene 3).',1],
+ ['Brötchen','🥖','ge','Brötchen werden aus Getreidemehl gebacken.'],
+ ['Milch','🥛','mi','Milch liefert Calcium für Knochen und Zähne.'],
+ ['Naturjoghurt','🥄','mi','Joghurt wird aus Milch hergestellt.'],
+ ['Käse','🧀','mi','Käse wird aus Milch gemacht und zählt zu den Milchprodukten.'],
+ ['Quark','🥣','mi','Quark wird aus Milch hergestellt.'],
+ ['Hähnchenbrust','🍗','fl','Fleisch liefert Eiweiß und Eisen, kommt aber nur in Maßen auf den Teller.'],
+ ['Lachs','🐟','fl','Fisch liefert Eiweiß und Jod. Ein- bis zweimal pro Woche ist gut.'],
+ ['Ei','🥚','fl','Eier sind keine Milchprodukte. Sie gehören zu Fleisch, Wurst, Fisch & Eier (Ebene 4, rechts).',1],
+ ['Würstchen','🌭','fl','Wurst ist verarbeitetes Fleisch, oft fett und salzig. Nur in Maßen.'],
+ ['Schweinesteak','🥩','fl','Fleisch liefert Eiweiß und Eisen, kommt aber nur in Maßen auf den Teller.'],
+ ['Olivenöl','🫒','fe','Pflanzenöle sind wertvolle Fette. Sparsam verwenden.'],
+ ['Rapsöl','🌼','fe','Rapsöl ist ein Pflanzenöl, also ein Fett der Ebene 5.'],
+ ['Butter','🧈','fe','Butter wird aus Milch gemacht, zählt aber zu den Fetten (Ebene 5) und nicht zu den Milchprodukten.',1],
+ ['Margarine','🧈','fe','Margarine ist ein Streichfett. Sparsam aufs Brot.'],
+ ['Schokolade','🍫','su','Viel Zucker und Fett, kaum Nährstoffe: Spitze der Pyramide.'],
+ ['Gummibärchen','🍬','su','Fast nur Zucker.'],
+ ['Kartoffelchips','🍿','su','Chips sind zwar aus Kartoffeln, aber frittiert und stark gesalzen. Das ist ein Snack an der Spitze.',1],
+ ['Cola','🥤','su','Cola ist ein Getränk, steht aber an der Spitze: In 0,5 Liter stecken etwa 13 Stück Würfelzucker.',1],
+ ['Kuchen','🍰','su','Kuchen enthält viel Zucker und Fett.'],
+ ['Salzstangen','🥨','su','Salziges Gebäck zählt zu den Snacks.']
+];
+var FOODS=RAW.map(function(r){return {n:r[0],e:r[1],g:r[2],note:r[3],trap:!!r[4]}});
+var fidx=function(n){for(var i=0;i<FOODS.length;i++)if(FOODS[i].n===n)return i;return -1};
+
+var PRE=[
+ {q:'Was sollte in der Ernährungspyramide die größte Menge ausmachen?',o:['Fleisch, Wurst und Fisch','Getränke und pflanzliche Lebensmittel','Süßigkeiten und Snacks','Milch und Käse'],a:1,s:'Die breite Basis: Getränke, Gemüse, Obst und Getreideprodukte.'},
+ {q:'Wohin gehört ein Glas Cola?',o:['In die Basis (Getränke)','In die Mitte','An die Spitze (Süßes und Snacks)'],a:2,s:'Cola ist stark gesüßt und steht an der Spitze.'},
+ {q:'Zu welcher Gruppe zählen Kartoffeln?',o:['Getreide & Kartoffeln','Gemüse, Salat & Obst','Milch & Milchprodukte'],a:0,s:'Kartoffeln gehören zu Getreide & Kartoffeln (Ebene 3).'}
+];
+var GOALS=[
+ 'Ich kann die sechs Ebenen und sieben Gruppen der Ernährungspyramide benennen.',
+ 'Ich kann Lebensmittel der richtigen Gruppe und Ebene zuordnen.',
+ 'Ich kann erklären, warum manche Lebensmittel reichlich und andere nur selten gegessen werden sollen.',
+ 'Ich kann einen Tagesplan mit der Pyramide prüfen und verbessern.'
+];
+var STEPS=[
+ {id:'start',label:'Einstieg',phase:'Einstieg',min:'5 Min.'},
+ {id:'explore',label:'Entdecken',phase:'Erarbeitung',min:'10 Min.'},
+ {id:'sort',label:'Zuordnen',phase:'Einüben',min:'10 Min.'},
+ {id:'detective',label:'Ebenen-Detektiv',phase:'Vertiefen',min:'8 Min.'},
+ {id:'day',label:'Mein Tag',phase:'Anwenden',min:'12 Min.'},
+ {id:'wrap',label:'Abschluss',phase:'Sichern',min:'5 Min.'}
+];
+
+/* ---------- Zustand ---------- */
+function defaults(){return {step:0,done:{},guess:[null,null,null],seen:[],reflect:'',self:[false,false,false,false],day:null,dayMode:'mia'}}
+function load(){try{var r=JSON.parse(localStorage.getItem(KEY));var d=defaults();if(r&&typeof r==='object')for(var k in d)if(k in r)d[k]=r[k];return d}catch(e){return defaults()}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+var S=load();
+var T={sel:null,sort:null,quiz:null};
+function miaDay(){return ['Brötchen','Brötchen','Margarine','Milch','Cola','Schokolade','Nudeln','Tomate','Hähnchenbrust','Cola','Apfel','Kartoffelchips','Mineralwasser','Gummibärchen','Mineralwasser'].map(fidx)}
+if(!Array.isArray(S.day))S.day=miaDay();
+if(!Array.isArray(S.seen))S.seen=[];
+
+/* ---------- Helfer ---------- */
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function announce(t){$('#live').textContent=t}
+function focusKey(k){if(!k)return;var el=$('[data-k="'+k+'"]');if(el)el.focus({preventScroll:true})}
+function curKey(){var a=document.activeElement;return a&&a.dataset?a.dataset.k:null}
+function head(i){var st=STEPS[i];return '<div class="stack"><p class="meta">Schritt '+(i+1)+' von 6 · '+st.phase+' · ca. '+st.min+'</p>'}
+
+function pyramid(o){
+  o=o||{};
+  var rows=[['su'],['fe'],['mi','fl'],['ge'],['ob'],['wa']];
+  var T0=0.2, hw=function(t){return T0+(1-T0)*t}, ins=function(t){return 50*(1-hw(t))};
+  var h='<div class="pyr'+(o.locked?' locked':'')+'" role="group" aria-label="Ernährungspyramide mit sechs Ebenen">';
+  rows.forEach(function(row,i){
+    var a=ins(i/6).toFixed(2), b=ins((i+1)/6).toFixed(2);
+    var clip='polygon('+a+'% 0,'+(100-a).toFixed(2)+'% 0,'+(100-b).toFixed(2)+'% 100%,'+b+'% 100%)';
+    h+='<div class="pyr-row" style="clip-path:'+clip+'">';
+    row.forEach(function(id){
+      var g=G[id];var c=(o.cls&&o.cls(id))||'';var m=(o.mark&&o.mark(id))||'';
+      h+='<button type="button" class="cell '+c+'" data-g="'+id+'" data-k="p'+id+'" aria-label="Ebene '+g.level+': '+esc(g.name)+'"><small>Ebene '+g.level+m+'</small><span>'+esc(g.short)+'</span></button>';
+    });
+    h+='</div>';
+  });
+  return h+'</div>';
+}
+function legend(){return '<div class="legend"><span><i class="dot gruen"></i>Reichlich (Ebene 1–3)</span><span><i class="dot gelb"></i>In Maßen (Ebene 4–5)</span><span><i class="dot rot"></i>Selten (Ebene 6)</span></div>'}
+function navBtns(i){
+  var h='<div class="nav">';
+  h+= i>0 ? '<button type="button" class="btn ghost" data-go="'+(i-1)+'">← '+STEPS[i-1].label+'</button>' : '<span></span>';
+  h+= i<STEPS.length-1 ? '<button type="button" class="btn" data-go="'+(i+1)+'">'+STEPS[i+1].label+' →</button>' : '';
+  return h+'</div>';
+}
+
+/* ---------- Schrittleiste ---------- */
+function renderSteps(){
+  $('#steps').innerHTML=STEPS.map(function(st,i){
+    return '<button type="button" class="step'+(S.done[st.id]?' done':'')+'" data-go="'+i+'"'+(i===S.step?' aria-current="step"':'')+'><i>'+(S.done[st.id]?'✓':(i+1))+'</i>'+st.label+'</button>';
+  }).join('');
+  var cur=$('.step[aria-current]');if(cur&&cur.scrollIntoView)cur.scrollIntoView({inline:'center',block:'nearest'});
+}
+function go(i){
+  S.step=i;save();T.sel=null;render();window.scrollTo(0,0);
+  var h=$('#main h2');if(h){h.setAttribute('tabindex','-1');h.focus({preventScroll:true})}
+}
+function render(){
+  renderSteps();
+  var f=[renderStart,renderExplore,renderSort,renderDetective,renderDay,renderWrap][S.step];
+  f();
+  $$('[data-go]',main).forEach(function(b){b.onclick=function(){go(+b.dataset.go)}});
+}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#steps [data-go]');if(b)go(+b.dataset.go)});
+
+/* ---------- 1 Einstieg ---------- */
+function renderStart(){
+  var h=head(0)+'<h2>Was gehört wohin, und warum?</h2>'
+   +'<p class="lead">Mia ist 13. Gestern gab es bei ihr Brötchen mit Margarine, in der Pause eine Cola, mittags Nudeln mit Tomatensoße und abends Kartoffelchips vor dem Fernseher. Passt das zusammen? Mit der Ernährungspyramide kannst du das beurteilen.</p>'
+   +'<div class="box stack"><h3>Das lernst du heute</h3><ul class="goals">'+GOALS.map(function(g){return '<li>'+esc(g.replace(/^Ich kann /,'Du kannst '))+'</li>'}).join('')+'</ul></div>'
+   +'<div class="task"><span class="lbl">Auftrag</span>Was glaubst du? Wähle bei jeder Frage deine Vermutung. Es gibt noch keine Note. Am Ende vergleichst du mit dem, was du jetzt weißt.</div>'
+   +'<div class="stack">';
+  PRE.forEach(function(q,qi){
+    h+='<div class="q"><h3>'+(qi+1)+'. '+esc(q.q)+'</h3><div class="opts">';
+    q.o.forEach(function(o,oi){h+='<button type="button" class="opt" data-q="'+qi+'" data-o="'+oi+'" data-k="q'+qi+'_'+oi+'" aria-pressed="'+(S.guess[qi]===oi)+'">'+esc(o)+'</button>'});
+    h+='</div></div>';
+  });
+  var n=S.guess.filter(function(x){return x!==null}).length;
+  h+='</div><p class="small" role="status">'+(n===3?'Deine Vermutungen sind gespeichert. Auf geht es zum Entdecken.':n+' von 3 Vermutungen abgegeben.')+'</p>'+navBtns(0)+'</div>';
+  main.innerHTML=h;
+  $$('.opt',main).forEach(function(b){b.onclick=function(){
+    var k=curKey();S.guess[+b.dataset.q]=+b.dataset.o;
+    S.done.start=S.guess.every(function(x){return x!==null});save();render();focusKey(k);
+  }});
+}
+
+/* ---------- 2 Entdecken ---------- */
+function panelHTML(id){
+  if(!id)return '<div class="empty"><p><b>Tippe auf eine Ebene der Pyramide.</b><br>Dann siehst du hier, was dazugehört, wie viel davon gut ist und warum.</p></div>';
+  var g=G[id];
+  var ex=FOODS.filter(function(f){return f.g===id}).map(function(f){return '<span class="chip"><span aria-hidden="true">'+f.e+'</span>'+esc(f.n)+'</span>'}).join('');
+  return '<div class="panel" data-g="'+id+'"><div class="hd"><span class="tag"><i class="dot '+g.ampel+'"></i>Ebene '+g.level+' · '+AMPEL[g.ampel]+'</span><h3>'+esc(g.name)+'</h3></div><div class="bd">'
+   +'<div class="sec big"><b class="k">So viel pro Tag</b><p>'+esc(g.amount)+'</p></div>'
+   +'<div class="sec"><b class="k">Warum ist das wichtig?</b><p>'+esc(g.why)+'</p></div>'
+   +'<div class="sec"><b class="k">Beispiele</b><div class="chips">'+ex+'</div></div>'
+   +'<div class="rule">Merksatz: '+esc(g.rule)+'</div>'
+   +'<div class="warn"><b>Aufgepasst:</b> '+esc(g.warn)+'</div></div></div>';
+}
+function renderExplore(){
+  var n=S.seen.length;
+  var pips='';for(var i=0;i<7;i++)pips+='<i class="'+(i<n?'on':'')+'"></i>';
+  main.innerHTML=head(1)+'<h2>Die Pyramide erkunden</h2>'
+   +'<div class="task"><span class="lbl">Auftrag</span>Tippe nacheinander auf alle sieben Felder. Lies Menge, Begründung und Merksatz. Je breiter das Feld unten, desto mehr davon darfst du essen oder trinken.</div>'
+   +'<div class="explore"><div class="pyrcol">'
+   +pyramid({cls:function(id){return id===T.sel?'sel':''},mark:function(id){return S.seen.indexOf(id)>-1?' ✓':''}})
+   +legend()+'<div class="prog"><div class="pips" aria-hidden="true">'+pips+'</div><span>'+n+' von 7 Feldern entdeckt</span></div></div>'
+   +'<div id="panel">'+panelHTML(T.sel)+'</div></div>'
+   +(n===7?'<div class="result"><b>Alle Felder entdeckt.</b><p>Weiter geht es mit dem Zuordnen von Lebensmitteln.</p></div>':'')
+   +navBtns(1)+'</div>';
+  $$('.cell',main).forEach(function(c){c.onclick=function(){
+    var id=c.dataset.g;T.sel=id;
+    if(S.seen.indexOf(id)<0)S.seen.push(id);
+    if(S.seen.length>=7)S.done.explore=true;
+    save();render();focusKey('p'+id);
+    if(window.innerWidth<900){var p=$('#panel');if(p&&p.scrollIntoView)p.scrollIntoView({behavior:'smooth',block:'nearest'})}
+  }});
+  $$('[data-go]',main).forEach(function(b){b.onclick=function(){go(+b.dataset.go)}});
+}
+
+/* ---------- 3 Zuordnen ---------- */
+function newSort(){
+  var ids=[];
+  GROUPS.forEach(function(g){
+    var pool=shuffle(FOODS.map(function(f,i){return i}).filter(function(i){return FOODS[i].g===g.id}));
+    ids.push(pool[0],pool[1]);
+  });
+  T.sort={cards:shuffle(ids),placed:{},sel:null,wrong:{},mistakes:0,fb:null,rounds:(T.sort?T.sort.rounds:0)};
+}
+function sortPlace(ci,gid){
+  var s=T.sort,f=FOODS[ci],ok=f.g===gid;
+  if(ok){
+    s.placed[ci]=gid;s.sel=null;
+    s.fb={t:'ok',h:'Richtig! '+f.e+' <b>'+esc(f.n)+'</b> gehört zu '+esc(G[gid].name)+' (Ebene '+G[gid].level+').'};
+  }else{
+    s.mistakes++;s.wrong[ci]=(s.wrong[ci]||0)+1;
+    s.fb={t:'no',h:'Nicht ganz: '+f.e+' <b>'+esc(f.n)+'</b> gehört nicht zu '+esc(G[gid].name)+'.'+(s.wrong[ci]>=2?' <b>Tipp:</b> '+esc(f.note):' Überlege noch einmal.')};
+  }
+  var k=curKey();
+  var finished=s.cards.every(function(c){return s.placed[c]!==undefined});
+  if(finished){S.done.sort=true;s.rounds++;save()}
+  renderSort();
+  if(!ok){var b=$('.bin[data-g="'+gid+'"]');if(b){b.classList.add('shake')}}
+  announce($('#fb')?$('#fb').textContent:'');
+  if(k)focusKey(k);
+}
+function renderSort(){
+  if(!T.sort)newSort();
+  var s=T.sort;
+  var left=s.cards.filter(function(c){return s.placed[c]===undefined});
+  var h=head(2)+'<h2>Karten in die Gruppen sortieren</h2>'
+   +'<div class="task"><span class="lbl">Auftrag</span>Tippe eine Karte an und dann auf die Gruppe, in die sie gehört. Am Computer kannst du die Karte auch ziehen. Ebene 1 ist die Basis, Ebene 6 die Spitze.</div>'
+   +'<div class="statusline"><span>Noch offen: <b>'+left.length+'</b> von '+s.cards.length+'</span><span>Fehlversuche: <b>'+s.mistakes+'</b></span></div>'
+   +'<div class="pool" id="pool" aria-label="Kartenstapel">'
+   +(left.length?left.map(function(c){var f=FOODS[c];return '<button type="button" class="food" draggable="true" data-card="'+c+'" data-k="c'+c+'" aria-pressed="'+(s.sel===c)+'"><span class="em" aria-hidden="true">'+f.e+'</span>'+esc(f.n)+'</button>'}).join(''):'<span class="small">Alle Karten sind sortiert.</span>')
+   +'</div>'
+   +'<div class="fb '+(s.fb?s.fb.t:'')+'" id="fb" role="status">'+(s.fb?s.fb.h:(s.sel!==null?'Tippe jetzt auf die passende Gruppe.':'Wähle eine Karte aus.'))+'</div>'
+   +'<div class="bins">';
+  GROUPS.forEach(function(g){
+    var items=s.cards.filter(function(c){return s.placed[c]===g.id});
+    h+='<section class="bin'+(s.sel!==null?' target':'')+'" data-g="'+g.id+'"><button type="button" class="bin-head" data-k="b'+g.id+'" aria-label="In Gruppe '+esc(g.name)+' legen"><small>Ebene '+g.level+'</small><b>'+esc(g.name)+'</b></button><ul class="placed">'
+     +items.map(function(c){return '<li>'+FOODS[c].e+' '+esc(FOODS[c].n)+'</li>'}).join('')+'</ul></section>';
+  });
+  h+='</div>';
+  if(!left.length){
+    var rating=s.mistakes===0?'Fehlerfrei, stark!':(s.mistakes<=4?'Gut gemacht.':'Das war knifflig. Eine weitere Runde festigt es.');
+    h+='<div class="result"><b>Runde geschafft: '+s.cards.length+' Karten, '+s.mistakes+' Fehlversuche.</b><p>'+rating+'</p><div class="row"><button type="button" class="btn" id="again">Neue Runde mit neuen Karten</button></div></div>';
+  }
+  h+=navBtns(2)+'</div>';
+  main.innerHTML=h;
+  $$('.food',main).forEach(function(b){
+    b.onclick=function(){var c=+b.dataset.card;T.sort.sel=(T.sort.sel===c?null:c);T.sort.fb=null;var k=curKey();renderSort();focusKey(k)};
+    b.ondragstart=function(e){var c=+b.dataset.card;T.sort.sel=c;e.dataTransfer.setData('text/plain',String(c));e.dataTransfer.effectAllowed='move'};
+  });
+  $$('.bin',main).forEach(function(bn){
+    bn.onclick=function(){
+      if(T.sort.sel===null){T.sort.fb={t:'',h:'Wähle zuerst eine Karte aus dem Stapel.'};var k=curKey();renderSort();focusKey(k);return}
+      sortPlace(T.sort.sel,bn.dataset.g);
+    };
+    bn.ondragover=function(e){e.preventDefault();bn.classList.add('over')};
+    bn.ondragleave=function(){bn.classList.remove('over')};
+    bn.ondrop=function(e){e.preventDefault();bn.classList.remove('over');var c=parseInt(e.dataTransfer.getData('text/plain'),10);if(!isNaN(c))sortPlace(c,bn.dataset.g)};
+  });
+  var ag=$('#again');if(ag)ag.onclick=function(){var r=T.sort.rounds;newSort();T.sort.rounds=r;renderSort()};
+}
+
+/* ---------- 4 Ebenen-Detektiv ---------- */
+function newQuiz(){
+  var all=FOODS.map(function(f,i){return i});
+  var traps=shuffle(all.filter(function(i){return FOODS[i].trap})).slice(0,4);
+  var rest=shuffle(all.filter(function(i){return !FOODS[i].trap})).slice(0,6);
+  T.quiz={qs:shuffle(traps.concat(rest)),i:0,ans:null,score:0,miss:[]};
+}
+function renderDetective(){
+  if(!T.quiz)newQuiz();
+  var q=T.quiz,total=q.qs.length;
+  var h=head(3);
+  if(q.i>=total){
+    S.done.detective=true;save();renderSteps();
+    h+='<h2>Auswertung</h2><div class="result"><b>'+q.score+' von '+total+' richtig.</b><p>'+(q.score===total?'Du bist ein echter Ebenen-Detektiv.':(q.score>=7?'Sehr gut. Schau dir an, was du verwechselt hast.':'Schau dir die Verwechslungen genau an. Sie helfen dir bei der nächsten Runde.'))+'</p></div>';
+    if(q.miss.length){
+      h+='<h3>Das hast du verwechselt</h3><ul class="review">'+q.miss.map(function(m){var f=FOODS[m];return '<li><b>'+f.e+' '+esc(f.n)+'</b> → '+esc(G[f.g].name)+' (Ebene '+G[f.g].level+')<br><span class="small">'+esc(f.note)+'</span></li>'}).join('')+'</ul>';
+    }
+    h+='<div class="row"><button type="button" class="btn" id="qagain">Noch einmal mit neuen Fragen</button></div>'+navBtns(3)+'</div>';
+    main.innerHTML=h;
+    $('#qagain').onclick=function(){newQuiz();renderDetective()};
+    return;
+  }
+  var f=FOODS[q.qs[q.i]];
+  h+='<h2>Ebenen-Detektiv</h2><div class="task"><span class="lbl">Auftrag</span>Wo gehört das Lebensmittel hin? Tippe in der Pyramide auf die richtige Gruppe. Achtung: Einige Lebensmittel sind Fallen.</div>'
+   +'<div class="statusline"><span>Frage <b>'+(q.i+1)+'</b> von '+total+'</span><span>Richtig: <b>'+q.score+'</b></span></div>'
+   +'<div class="qcard"><span class="em" aria-hidden="true">'+f.e+'</span><b>'+esc(f.n)+'</b></div>'
+   +pyramid({locked:q.ans!==null,
+      cls:function(id){if(!q.ans)return '';if(id===f.g)return 'ok';if(id===q.ans.choice)return 'no';return ''},
+      mark:function(id){if(!q.ans)return '';if(id===f.g)return ' ✓';if(id===q.ans.choice)return ' ✗';return ''}});
+  if(q.ans){
+    h+='<div class="fb '+(q.ans.right?'ok':'no')+'" role="status"><b>'+(q.ans.right?'Richtig!':'Leider falsch.')+'</b> '+esc(f.n)+' gehört zu <b>'+esc(G[f.g].name)+'</b> (Ebene '+G[f.g].level+'). '+esc(f.note)+'</div>'
+     +'<div class="row"><button type="button" class="btn" id="qnext" data-k="next">'+(q.i+1<total?'Nächste Frage →':'Zur Auswertung →')+'</button></div>';
+  }else{
+    h+='<div class="fb" role="status">Tippe auf ein Feld der Pyramide.</div>';
+  }
+  h+='</div>';
+  main.innerHTML=h;
+  if(!q.ans){
+    $$('.cell',main).forEach(function(c){c.onclick=function(){
+      var right=c.dataset.g===f.g;
+      q.ans={choice:c.dataset.g,right:right};
+      if(right)q.score++;else q.miss.push(q.qs[q.i]);
+      renderDetective();focusKey('next');
+      var nx=$('#qnext');if(nx&&nx.scrollIntoView)nx.scrollIntoView({block:'nearest',behavior:'smooth'});
+    }});
+  }else{
+    $('#qnext').onclick=function(){q.i++;q.ans=null;renderDetective();window.scrollTo(0,0)};
+  }
+}
+
+/* ---------- 5 Mein Tag ---------- */
+function counts(){var c={};GROUPS.forEach(function(g){c[g.id]=0});S.day.forEach(function(i){if(FOODS[i])c[FOODS[i].g]++});return c}
+function statusOf(g,n){return n<g.t.min?'low':(n>g.t.max&&g.t.max<g.t.scale?'high':'ok')}
+function renderDay(){
+  var c=counts(),total=S.day.length;
+  var foods='';
+  GROUPS.forEach(function(g){
+    foods+='<div class="foodgrp" data-g="'+g.id+'"><h4><span>Ebene '+g.level+'</span>'+esc(g.name)+'</h4><div class="list">';
+    FOODS.forEach(function(f,i){
+      if(f.g!==g.id)return;
+      var n=S.day.filter(function(x){return x===i}).length;
+      foods+='<button type="button" class="food add" data-add="'+i+'" data-k="f'+i+'" aria-label="'+esc(f.n)+' hinzufügen'+(n?', aktuell '+n+'-mal':'')+'"><span class="em" aria-hidden="true">'+f.e+'</span>'+esc(f.n)+(n?'<span class="cnt">'+n+'</span>':'')+'</button>';
+    });
+    foods+='</div></div>';
+  });
+  var meters='',low=[],high=[],ok=[];
+  GROUPS.forEach(function(g){
+    var n=c[g.id],st=statusOf(g,n);
+    (st==='low'?low:(st==='high'?high:ok)).push(g);
+    var zl=g.t.min/g.t.scale*100,zw=(Math.min(g.t.max,g.t.scale)-g.t.min)/g.t.scale*100;
+    var fw=Math.min(n/g.t.scale,1)*100;
+    var txt=st==='ok'?'✓ Passt':(st==='low'?'+ Mehr nötig':'! Zu viel');
+    meters+='<div class="meter" data-g="'+g.id+'"><div class="m-label"><b>'+esc(g.short)+'</b><small>Ebene '+g.level+' · Ziel: '+esc(g.t.label)+'</small></div><span class="m-status '+st+'">'+n+' · '+txt+'</span>'
+     +'<div class="m-bar" role="img" aria-label="'+n+' Portionen, Ziel '+esc(g.t.label)+'"><span class="zone" style="left:'+zl+'%;width:'+Math.max(zw,1.5)+'%"></span><span class="fill" style="width:'+fw+'%"></span></div></div>';
+  });
+  var names=function(a){return a.map(function(g){return esc(g.short)}).join(', ')};
+  var sum;
+  if(!total){sum='<p>Tippe auf Lebensmittel, um deinen Tag aufzubauen.</p>'}
+  else{
+    sum='';
+    if(ok.length)sum+='<p><b>Das passt:</b> '+names(ok)+'.</p>';
+    if(low.length)sum+='<p><b>Davon fehlt noch etwas:</b> '+names(low)+'.</p>';
+    if(high.length)sum+='<p><b>Davon ist zu viel:</b> '+names(high)+'.</p>';
+    if(!low.length&&!high.length)sum+='<p>Dein Tag passt gut zur Pyramide.</p>';
+  }
+  main.innerHTML=head(4)+'<h2>Mein Tag in der Pyramide</h2>'
+   +'<div class="task"><span class="lbl">Auftrag</span>1. Sieh dir Mias Tag an und prüfe die Balken. 2. Leere die Liste und trage deinen eigenen gestrigen Tag ein. Jedes Tippen zählt eine Portion. 3. Schreibe unten auf, was du verbessern würdest.</div>'
+   +'<div class="row"><span class="chip" aria-live="polite">'+(S.dayMode==='mia'?'Beispiel: Mias Tag':'Mein eigener Tag')+' · '+total+' Portionen</span>'
+   +'<button type="button" class="btn ghost" id="mia">Mias Tag laden</button><button type="button" class="btn ghost" id="undo"'+(total?'':' disabled')+'>Letzte entfernen</button><button type="button" class="btn ghost" id="clear"'+(total?'':' disabled')+'>Liste leeren</button></div>'
+   +'<div class="day"><div class="meters box" id="meters"><h3>Dein Tag im Vergleich</h3><p class="small">Der gestreifte Bereich ist das Ziel. Richtwerte für Jugendliche, vereinfacht.</p>'+meters+'<div class="sum" style="margin-top:12px">'+sum+'</div></div>'
+   +'<div class="stack"><h3>Lebensmittel antippen</h3>'+foods+'</div></div>'
+   +'<div class="stack"><h3>Meine Verbesserung</h3><label for="reflect" class="small">Was würdest du am Tag ändern? Schreibe zwei Sätze und nenne dabei eine Gruppe und ihre Ebene.</label><textarea id="reflect" placeholder="Zum Beispiel: Ich würde statt der zweiten Cola ein Glas Wasser trinken, denn Getränke gehören in Ebene 1 …">'+esc(S.reflect)+'</textarea></div>'
+   +navBtns(4)+'</div>';
+  $$('[data-add]',main).forEach(function(b){b.onclick=function(){var k=curKey();S.day.push(+b.dataset.add);S.dayMode='own';save();renderDay();focusKey(k)}});
+  $('#mia').onclick=function(){S.day=miaDay();S.dayMode='mia';save();renderDay()};
+  $('#undo').onclick=function(){S.day.pop();save();renderDay()};
+  $('#clear').onclick=function(){S.day=[];S.dayMode='own';save();renderDay()};
+  $('#reflect').oninput=function(e){S.reflect=e.target.value;S.done.day=S.reflect.trim().length>=15;save();renderSteps()};
+}
+
+/* ---------- 6 Abschluss ---------- */
+function summaryText(){
+  var t='Merkzettel Ernährungspyramide\n\n';
+  GROUPS.forEach(function(g){t+='Ebene '+g.level+' · '+g.name+': '+g.rule+'\n'});
+  return t;
+}
+function renderWrap(){
+  var cmp=PRE.map(function(q,i){
+    var gi=S.guess[i];var right=gi===q.a;
+    return '<div><b>'+esc(q.q)+'</b><br>Dein Tipp: '+(gi===null?'keiner':esc(q.o[gi]))+(gi===null?'':(right?' <b>(stimmt)</b>':' <b>(nicht ganz)</b>'))+'<br><span class="small">Lösung: '+esc(q.o[q.a])+'. '+esc(q.s)+'</span></div>';
+  }).join('');
+  main.innerHTML=head(5)+'<h2>Das nehme ich mit</h2>'
+   +'<div class="stack"><h3>Dein Tipp am Anfang und die Lösung</h3><div class="cmp">'+cmp+'</div></div>'
+   +'<div class="stack"><h3>Sieben Merksätze, eine Pyramide</h3><div class="merk">'+GROUPS.map(function(g){return '<div data-g="'+g.id+'"><small>Ebene '+g.level+' · '+esc(g.short)+'</small>'+esc(g.rule)+'</div>'}).join('')+'</div>'
+   +'<div class="row"><button type="button" class="btn ghost" id="copy">Merkzettel kopieren</button><span class="small" id="copymsg" role="status"></span></div><div id="copyfb"></div></div>'
+   +'<div class="stack"><h3>Selbsteinschätzung</h3><p class="small">Setze ein Häkchen, wenn du dir sicher bist.</p><div class="checks">'
+   +GOALS.map(function(g,i){return '<label><input type="checkbox" data-self="'+i+'" id="self'+i+'"'+(S.self[i]?' checked':'')+'><span>'+esc(g)+'</span></label>'}).join('')+'</div></div>'
+   +'<div class="row"><button type="button" class="btn ghost" id="reset">Alles zurücksetzen</button><span class="small" id="resetmsg" role="status">Löscht Fortschritt und Eingaben auf diesem Gerät.</span></div>'
+   +navBtns(5)+'</div>';
+  $$('[data-self]',main).forEach(function(b){b.onchange=function(){S.self[+b.dataset.self]=b.checked;S.done.wrap=S.self.some(Boolean);save();renderSteps()}});
+  $('#copy').onclick=function(){
+    var t=summaryText(),msg=$('#copymsg');
+    var fb=function(){$('#copyfb').innerHTML='<textarea id="copyta" readonly rows="8">'+esc(t)+'</textarea>';var ta=$('#copyta');ta.focus();ta.select();msg.textContent='Text markieren und mit Strg+C kopieren.'};
+    try{navigator.clipboard.writeText(t).then(function(){msg.textContent='Kopiert.'},fb)}catch(e){fb()}
+  };
+  var armed=false;
+  $('#reset').onclick=function(){
+    if(!armed){armed=true;$('#reset').textContent='Wirklich alles löschen?';$('#resetmsg').textContent='Noch einmal tippen zum Bestätigen.';return}
+    S=defaults();S.day=miaDay();T={sel:null,sort:null,quiz:null};save();go(0);
+  };
+}
+
+render();
+})();
+</script>
+
+</body>
+</html>
